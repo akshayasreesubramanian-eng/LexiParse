@@ -1,0 +1,354 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LexiParse | LL(1) Parser</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f3f5f9;
+            color: #202b3c;
+        }
+
+        header {
+            background: #172554;
+            color: white;
+            padding: 25px 8%;
+        }
+
+        header h1 {
+            margin: 0 0 8px;
+        }
+
+        header p {
+            margin: 0;
+            color: #dbeafe;
+        }
+
+        main {
+            width: 90%;
+            max-width: 1150px;
+            margin: 30px auto;
+        }
+
+        .card {
+            background: white;
+            padding: 24px;
+            margin-bottom: 22px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px #0000000b;
+            overflow-x: auto;
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #172554;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin: 16px 0 8px;
+        }
+
+        textarea, input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 7px;
+            font: inherit;
+        }
+
+        textarea {
+            min-height: 125px;
+            resize: vertical;
+        }
+
+        button {
+            margin-top: 18px;
+            background: #2563eb;
+            color: white;
+            border: 0;
+            padding: 12px 22px;
+            border-radius: 7px;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        .hint {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .status {
+            padding: 14px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .success {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .failure {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+        }
+
+        th, td {
+            border: 1px solid #e2e8f0;
+            padding: 11px;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        th {
+            background: #eaf0ff;
+        }
+
+        pre {
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+            margin: 0;
+        }
+
+        .sets {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+        }
+
+        .set-item {
+            padding: 12px;
+            background: #f8fafc;
+            border-radius: 7px;
+        }
+
+        .empty {
+            color: #94a3b8;
+        }
+
+        footer {
+            text-align: center;
+            padding: 25px;
+            color: #64748b;
+        }
+    </style>
+</head>
+
+<body>
+<header>
+    <h1>LexiParse</h1>
+    <p>LL(1) Grammar Analysis and Predictive Parsing</p>
+</header>
+
+<main>
+    <section class="card">
+        <h2>Grammar Input</h2>
+
+        <form method="POST">
+            <label for="grammar">Enter your grammar</label>
+
+            <textarea id="grammar" name="grammar"
+                      required>{{ grammar_text }}</textarea>
+
+            <p class="hint">
+                Use one rule per line, -> between the left and right sides,
+                | for alternatives, and spaces between symbols.
+                Use epsilon for an empty production.
+            </p>
+
+            <label for="input_string">Input string</label>
+
+            <input id="input_string" name="input_string"
+                   value="{{ input_string }}"
+                   placeholder="Example: id + id">
+
+            <p class="hint">
+                Example grammar: E -> T E'<br>
+                E' -> + T E' | epsilon<br>
+                T -> id
+            </p>
+
+            <button type="submit">Analyze Grammar &amp; Parse</button>
+        </form>
+    </section>
+
+    {% if error %}
+    <section class="card">
+        <h2>Error</h2>
+        <div class="status failure">{{ error }}</div>
+    </section>
+    {% endif %}
+
+    {% if grammar and not error %}
+
+    <section class="card">
+        <h2>Grammar Rules</h2>
+        {% for nt, productions in grammar.items() %}
+        <p>
+            <strong>{{ nt }} →</strong>
+            {% for production in productions %}
+                {{ production | join(' ') }}{% if not loop.last %} | {% endif %}
+            {% endfor %}
+        </p>
+        {% endfor %}
+    </section>
+
+    <section class="card">
+        <h2>FIRST Sets</h2>
+        <div class="sets">
+            {% for nt, values in first.items() %}
+            <div class="set-item">
+                <strong>FIRST({{ nt }})</strong>
+                = { {{ values | sort | join(', ') }} }
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="card">
+        <h2>FOLLOW Sets</h2>
+        <div class="sets">
+            {% for nt, values in follow.items() %}
+            <div class="set-item">
+                <strong>FOLLOW({{ nt }})</strong>
+                = { {{ values | sort | join(', ') }} }
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="card">
+        <h2>LL(1) Parsing Table</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Non-terminal</th>
+                    {% for terminal in terminals %}
+                    <th>{{ terminal }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for row in table_rows %}
+                <tr>
+                    <th>{{ row.non_terminal }}</th>
+                    {% for cell in row.cells %}
+                    <td>
+                        {% if cell.production %}
+                            {{ cell.production }}
+                        {% else %}
+                            <span class="empty">—</span>
+                        {% endif %}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+
+    <section class="card">
+        <h2>LL(1) Conflict Detection</h2>
+
+        {% if conflicts %}
+        <div class="status warning">
+            This grammar is NOT LL(1). Conflicting entries were found.
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Non-terminal</th>
+                    <th>Terminal</th>
+                    <th>Production 1</th>
+                    <th>Production 2</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for conflict in conflicts %}
+                <tr>
+                    <td>{{ conflict.non_terminal }}</td>
+                    <td>{{ conflict.terminal }}</td>
+                    <td>{{ conflict.first_production | join(' ') }}</td>
+                    <td>{{ conflict.second_production | join(' ') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="status success">
+            Grammar is LL(1). No conflicts found.
+        </div>
+        {% endif %}
+    </section>
+
+    {% if result %}
+    <section class="card">
+        <h2>Parsing Result</h2>
+
+        <div class="status {{ 'success' if result.accepted else 'failure' }}">
+            {{ result.message }}
+        </div>
+
+        {% if result.steps %}
+        <h3>Parsing Steps</h3>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Stack</th>
+                    <th>Remaining Input</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for step in result.steps %}
+                <tr>
+                    <td><pre>{{ step.stack }}</pre></td>
+                    <td><pre>{{ step.input }}</pre></td>
+                    <td>{{ step.action }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+    </section>
+    {% endif %}
+
+    {% endif %}
+</main>
+
+<footer>
+    LexiParse — Compiler Design Project
+</footer>
+</body>
+</html>

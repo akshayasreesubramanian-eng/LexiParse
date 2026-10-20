@@ -1,0 +1,258 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>LexiParse | Compiler Workbench</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f3f5f9;
+            color: #1e293b;
+        }
+
+        header {
+            background: #172554;
+            color: white;
+            padding: 32px 8%;
+        }
+
+        header h1 {
+            font-size: 36px;
+            margin: 0 0 10px;
+        }
+
+        header p {
+            color: #cbd5e1;
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        main {
+            width: 88%;
+            max-width: 1150px;
+            margin: 35px auto;
+        }
+
+        .intro {
+            margin-bottom: 28px;
+        }
+
+        .intro h2 {
+            margin-bottom: 8px;
+        }
+
+        .intro p {
+            color: #64748b;
+            line-height: 1.6;
+        }
+
+        .modules {
+            display: grid;
+            grid-template-columns: repeat(
+                auto-fit, minmax(250px, 1fr)
+            );
+            gap: 22px;
+        }
+
+        .module {
+            background: white;
+            padding: 25px;
+            border-radius: 13px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 14px #00000008;
+        }
+
+        .number {
+            font-size: 13px;
+            color: #64748b;
+            font-weight: bold;
+        }
+
+        .module h3 {
+            color: #172554;
+            margin: 14px 0 10px;
+        }
+
+        .module p {
+            color: #64748b;
+            line-height: 1.6;
+            min-height: 72px;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 7px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 18px;
+        }
+
+        .ready {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        a.button {
+            display: block;
+            text-align: center;
+            text-decoration: none;
+            background: #2563eb;
+            color: white;
+            padding: 12px;
+            border-radius: 7px;
+            font-weight: bold;
+        }
+
+        a.button:hover {
+            background: #1d4ed8;
+        }
+
+        .disabled-button {
+            display: block;
+            text-align: center;
+            background: #e2e8f0;
+            color: #64748b;
+            padding: 12px;
+            border-radius: 7px;
+            font-weight: bold;
+        }
+
+        .workflow {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 22px;
+            margin-top: 28px;
+        }
+
+        .workflow p {
+            color: #64748b;
+            line-height: 1.8;
+        }
+
+        footer {
+            text-align: center;
+            color: #64748b;
+            padding: 25px;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>LexiParse</h1>
+    <p>Interactive Compiler Design Workbench</p>
+    <p>Explore grammar analysis, automata construction,
+       and syntax-tree generation in one place.</p>
+</header>
+
+<main>
+    <section class="intro">
+        <h2>Project Dashboard</h2>
+        <p>
+            Choose a compiler module to get started.
+            The LL(1) parser is connected to the application.
+            The other modules can be connected when their
+            implementations are ready.
+        </p>
+    </section>
+
+    <section class="modules">
+
+        <article class="module">
+            <span class="number">MODULE 01</span>
+            <h3>Regex to NFA to DFA</h3>
+
+            <p>
+                Analyze a regular expression and visualize
+                its conversion into finite automata.
+            </p>
+
+            <span class="status pending">
+                Awaiting integration
+            </span>
+
+            <span class="disabled-button">
+                Module not connected yet
+            </span>
+        </article>
+
+        <article class="module">
+            <span class="number">MODULE 02</span>
+            <h3>LL(1) Predictive Parser</h3>
+
+            <p>
+                Enter a grammar, calculate FIRST and FOLLOW,
+                generate the parsing table, and trace an input.
+            </p>
+
+            <span class="status ready">
+                Available
+            </span>
+
+            <a class="button" href="/">
+                Open LL(1) Parser
+            </a>
+        </article>
+
+        <article class="module">
+            <span class="number">MODULE 03</span>
+            <h3>Parse Tree and AST</h3>
+
+            <p>
+                Generate a parse tree and abstract syntax tree
+                from supported input after integration.
+            </p>
+
+            <span class="status pending">
+                Awaiting integration
+            </span>
+
+            <span class="disabled-button">
+                Module not connected yet
+            </span>
+        </article>
+
+    </section>
+
+    <section class="workflow">
+        <h2>LexiParse Workflow</h2>
+
+        <p>
+            <strong>Regular Expression</strong> →
+            <strong>NFA / DFA</strong> →
+            <strong>Grammar Analysis</strong> →
+            <strong>LL(1) Parsing</strong> →
+            <strong>Parse Tree / AST</strong>
+        </p>
+
+        <p>
+            This is the intended project workflow.
+            Individual stages will become functional as
+            the corresponding modules are integrated.
+        </p>
+    </section>
+</main>
+
+<footer>
+    LexiParse | Compiler Design Project
+</footer>
+
+</body>
+</html>
